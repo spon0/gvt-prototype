@@ -1,0 +1,1 @@
+# Geospatial Virtual Testbed Viewer Setup Extension [talon_defense.geospatial_virtual_testbed_viewer_setup_ext]
