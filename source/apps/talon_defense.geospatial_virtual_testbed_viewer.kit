@@ -32,11 +32,20 @@ template_name = "omni.usd_viewer"
 "omni.kit.uiapp" = {}
 "omni.kit.viewport.utility" = {}
 "omni.kit.viewport.window" = {}
+"omni.kit.viewport.legacy_gizmos" = {}
 "omni.no_code_ui.bundle" = {}
 "omni.ujitso.client" = {}
 "omni.usd_viewer.samples" = {}
 "usdrt.scenegraph" = {}
 "talon_defense.geospatial_virtual_testbed_viewer_setup_ext" = { order = 1000 }
+
+[settings.exts."omni.kit.tool.teleport"]
+basicGizmo = true
+beamVisible = false
+eyeHeight = 175
+max_slope_angle = 30.0
+simple_camera = false
+widgetScale = 0.7
 
 
 [settings.persistent.app]
@@ -73,10 +82,12 @@ mergeInstances = false
 mergeMaterials = false
 
 [settings.app.viewport.defaults]
+grid.enabled = true
 fillViewport = true
-guide.grid.visible = false
-guide.axis.visible = false
-hud.visible = false
+guide.grid.visible = true
+guide.axis.visible = true
+guide.axis.size = 100.0
+hud.visible = true
 scene.cameras.visible = false
 scene.lights.visible = false
 
@@ -113,6 +124,18 @@ experience = "Geospatial Virtual Testbed"
 "omni.kit.renderer.core".present.enabled = true  # Enable the present thread
 "omni.kit.renderer.core".present.presentAfterRendering = true  # Ensure the present thread waits for the rendering to complete
 "omni.kit.window.viewport".showContextMenu = false  # Disable context menu, viewer not editor.
+
+# Restrict viewport navigation to orbit + zoom only -- no pan, no look/fly.
+# This is a pure look-only viewer for the streaming client (selection is
+# separately locked down in code -- see extension.py's
+# _setup_camera_and_selection). omni.kit.manipulator.camera only builds a
+# gesture for keys present in this dict (see its build_gestures), so
+# PanGesture/LookGesture/FlightMode/FlightSpeedGesture being left out means
+# they're never created at all, not just remapped to an unused button.
+# Reference for the full default gesture set this replaces:
+# PanGesture, TumbleGesture, LookGesture, FlightMode, FlightSpeedGesture,
+# ZoomGesture, ZoomScrollGesture.
+"omni.kit.viewport.window".bindings.camera = { TumbleGesture = "LeftButton", ZoomScrollGesture = "Any" }
 
 [settings]
 crashreporter.compressDumpFiles = true

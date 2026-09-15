@@ -25,9 +25,9 @@ repository = "https://github.com/NVIDIA-Omniverse/kit-app-template"  # URL of th
 "omni.kit.livestream.messaging" = {}
 "omni.usd" = {}
 "omni.kit.viewport.utility" = {}
+"omni.kit.pip_archive" = {} # for skyfield
 
 [settings]
-
 
 [[python.module]]  # Main python module this extension provides, it will be publicly available as "import omni.hello.world"
 name = "talon_defense.geospatial_virtual_testbed_viewer_ext"
