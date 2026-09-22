@@ -77,6 +77,8 @@ class Sun:
         sun_light = UsdLux.DistantLight.Define(stage, SUN_LIGHT_PATH)
         sun_light.CreateIntensityAttr(SUN_INTENSITY)
         sun_light.CreateColorAttr(SUN_COLOR)
+        sun_light.CreateSpecularAttr(0.0)
+        sun_light.CreateDiffuseAttr(1.0)
 
         xf = UsdGeom.Xformable(sun_light.GetPrim())
         xf.AddTranslateOp().Set(Gf.Vec3d(0, 0, 0))

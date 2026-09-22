@@ -37,7 +37,10 @@ template_name = "omni.usd_viewer"
 "omni.ujitso.client" = {}
 "omni.usd_viewer.samples" = {}
 "usdrt.scenegraph" = {}
+"omni.resourcemonitor" = {}  # Needed for Fabric delegate
+"omni.rtx.settings.core" = {}  # This is the Render Settings 2.0
 "talon_defense.geospatial_virtual_testbed_viewer_setup_ext" = { order = 1000 }
+"talon_defense.weather_overlay" = { order = 1001 }
 
 [settings.exts."omni.kit.tool.teleport"]
 basicGizmo = true
@@ -61,7 +64,7 @@ stage.upAxis = "Z"  # Default new stages (incl. the empty stage on startup) to Z
 metricsAssembler.showUnitsOverlay = false
 omnigraph.useSchemaPrims = true
 omnigraph.disablePrimNodes = false
-rtx.mdltranslator.distillMaterial = true  # Render Preferences - Material Distilling ON
+rtx.mdltranslator.distillMaterial = false  # Render Preferences - Material Distilling OFF (distilling can drop opacity)
 rtx-transient.resourcemanager.enableTextureStreaming = true  # Texture Streaming
 
 [settings.app]
@@ -73,9 +76,13 @@ livestream.skipCapture = 1  # livestream skipCapture ON for local streaming
 name = "Geospatial Virtual Testbed"
 renderer.resolution.width = 1920
 renderer.resolution.height = 1080
+useFabricSceneDelegate = true  # Turn on the Fabric scene delegate by default
 
 [settings.app.environment]
 name = "Geospatial Virtual Testbed"
+
+[settings.app.create]
+forceViewportSettings = true  # Force enable Axis, Grid, Outline and Lights at startup
 
 [settings.app.usdrt.population.utils]
 mergeInstances = false
@@ -137,14 +144,26 @@ experience = "Geospatial Virtual Testbed"
 # ZoomGesture, ZoomScrollGesture.
 "omni.kit.viewport.window".bindings.camera = { TumbleGesture = "LeftButton", ZoomScrollGesture = "Any" }
 
+[settings.renderer]
+active = "rtx"  # RTX As the default renderer always
+enabled = "rtx"  # only enable rtx renderer by default
+
 [settings]
+persistent.rtx.mdltranslator.mdlDistilling = false
 crashreporter.compressDumpFiles = true
-renderer.enabled = "rtx"  # enable rtx renderer
+#renderer.enabled = "rtx"  # enable rtx renderer
 # By default rtx is setup to be mgpu but in some context you might want to run on
 # a single gpu if so set this setting to false
 renderer.multiGpu.enabled = true
 rendergraph.maxFramesInFlight = 2
 rtx-transient.dlssg.enabled=false  # Disable DLSS otherwise it can push the framerate above the locked limit
+# RTX Real-Time treats UsdPreviewSurface opacity as a CUTOUT with the threshold
+# pinned at 1 unless this is on, so anything with 0 < opacity < 1 renders fully
+# opaque (or vanishes) instead of blending. The weather/sphere overlays are
+# see-through by definition, so this is not optional for this app.
+# Equivalent to Render Settings > Translucency > "Enable Fractional Cutout Opacity".
+rtx.raytracing.fractionalCutoutOpacity = true
+rtx.pathtracing.fractionalCutoutOpacity = true  # same switch for RTX - Real-Time 2.0 and Interactive (Path Tracing)
 telemetry.disableInternalSessionCheck = true
 telemetry.enableAnonymousAppName = true
 telemetry.enableAnonymousData = true

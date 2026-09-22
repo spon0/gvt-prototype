@@ -136,7 +136,9 @@ class GvtManager(omni.ext.IExt):
                 self._earth.create_earth(stage)
                 self._sun.create_sun(stage)
                 self._create_starfield(stage)
+
                 self._camera.apply_selection_lock_and_pivot(get_active_viewport(), stage)
+
 
     def _on_stage_event(self, event):
         if event.type == int(StageEventType.OPENED):

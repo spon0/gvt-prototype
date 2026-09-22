@@ -1,0 +1,47 @@
+mdl 1.7;
+
+// Weather data shell: color and opacity come from per-vertex mesh primvars
+// (primvars:dataColor color3f[], primvars:dataOpacity float[]).
+// Opacity drives MDL cutout_opacity directly, which RTX renders as smooth
+// alpha when fractional cutout opacity is on (the default in Real-Time 2.0).
+
+import ::anno::*;
+import ::df::*;
+import ::scene::*;
+
+export material DataShell(
+    uniform bool unlit = true
+    [[
+        anno::display_name("Unlit"),
+        anno::description("Emit the data colors (readable on the night side) instead of shading them with scene lights.")
+    ]],
+    float emissive_intensity = 1000.0
+    [[
+        anno::display_name("Emissive Intensity"),
+        anno::description("Brightness of the unlit colors. Same scale as light intensities; tune to your exposure."),
+        anno::soft_range(0.0, 10000.0)
+    ]],
+    float opacity_scale = 1.0
+    [[
+        anno::display_name("Opacity Scale"),
+        anno::description("Multiplies the per-vertex opacity."),
+        anno::hard_range(0.0, 1.0)
+    ]]
+)
+= let {
+    color data_color = color(scene::data_lookup_float3("dataColor", float3(1.0, 0.0, 1.0)));
+    float data_opacity = scene::data_lookup_float("dataOpacity", 1.0);
+    color base_color = unlit ? color(0.0) : data_color;
+    color glow = unlit ? data_color * emissive_intensity : color(0.0);
+} in material(
+    surface: material_surface(
+        scattering: df::diffuse_reflection_bsdf(tint: base_color),
+        emission: material_emission(
+            emission: df::diffuse_edf(),
+            intensity: glow
+        )
+    ),
+    geometry: material_geometry(
+        cutout_opacity: data_opacity * opacity_scale
+    )
+);

@@ -123,7 +123,7 @@ publish_pip_cache = false
 
 [repo_precache_exts]
 # Apps to run and precache
-apps = ["${root}/source/apps/talon_defense.geospatial_virtual_testbed_viewer.kit"]
+apps = ["${root}/source/apps/talon_defense.geospatial_virtual_testbed_viewer.kit", "${root}/source/apps/talon_defense.gvt_usd_explorer.kit", "${root}/source/apps/my_company.my_editor.kit"]
 
 # registries = [
 #     { name = "kit/default", url = "https://ovextensionsprod.blob.core.windows.net/exts/kit/prod/${kit_version_major}/shared" },

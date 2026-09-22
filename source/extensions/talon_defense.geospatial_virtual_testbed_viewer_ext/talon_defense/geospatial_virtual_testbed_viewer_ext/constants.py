@@ -11,6 +11,8 @@ EARTH_PATH = Sdf.Path("/World/Earth")
 _EXT_MODULE_DIR = os.path.dirname(__file__)
 EARTH_ASSET_PATH = os.path.join(_EXT_MODULE_DIR, "earth_medium.usda").replace(os.sep, "/")
 
+OVERLAY_ASSET_PATH = os.path.join(_EXT_MODULE_DIR, "weather_overlay.usda").replace(os.sep, "/")
+
 # earth_medium.usda is authored at real Earth scale (mean radius ~6,371,000
 # stage units, assuming metersPerUnit=1). USD does NOT auto-rescale a
 # reference to match the referencing stage's metersPerUnit, and most Kit

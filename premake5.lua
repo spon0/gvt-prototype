@@ -17,3 +17,5 @@ repo_build.prebuild_copy {
 -- Apps: for each app generate batch files and a project based on kit files (e.g. my_name.my_app.kit)
 
 define_app("talon_defense.geospatial_virtual_testbed_viewer.kit")
+define_app("talon_defense.gvt_usd_explorer.kit")
+define_app("my_company.my_editor.kit")

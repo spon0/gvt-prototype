@@ -1,0 +1,1 @@
+# My USD Explorer Setup Extension [talon_defense.usd_explorer_setup_extension]

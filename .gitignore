@@ -36,3 +36,6 @@ deps/**/user.toml
 
 # Streaming EventTrace
 *.etli
+
+# Stage dumps written by sphere_overlay.save_stage() for debugging
+_debug/

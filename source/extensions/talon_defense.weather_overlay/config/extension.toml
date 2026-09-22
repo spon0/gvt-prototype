@@ -1,0 +1,56 @@
+[package]
+version = "0.1.0"
+title = "GVT GRIB Sphere"
+description = "Transparent lat/lon shell with per-vertex color and opacity, animated from NOAA GRIB fields."
+category = "Visualization"
+keywords = ["grib", "weather", "noaa", "gfs", "globe", "primvar", "gvt"]
+readme = "docs/README.md"
+changelog = "docs/CHANGELOG.md"
+repository = ""
+
+[dependencies]
+"omni.usd" = {}
+"omni.kit.pipapi" = {}
+"omni.timeline" = { optional = true }      # only for clock = "timeline"
+"usdrt.scenegraph" = { optional = true }   # Fabric fast path when FSD is on
+
+# ecCodes wheels bundle the C library on Windows, Linux and macOS.
+# For offline/air-gapped deployment, pre-bundle instead (pip_prebundle) and drop use_online_index.
+[python.pipapi]
+requirements = ["eccodes"]
+modules = ["eccodes"]  # import name for pipapi's pre/post-install check (it can't parse version pins)
+use_online_index = true
+
+[[python.module]]
+name = "talon_defense.weather_overlay"
+
+# Autostart. Leave grib_glob empty (and demo false) to only expose the Python API.
+# Override any of these from your .kit file, e.g.
+#   [settings]
+#   exts."talon_defense.weather_overlay".grib_glob = "C:/data/gfs/*.pwat.*.grib2"
+[settings]
+exts."talon_defense.weather_overlay".demo = false            # synthetic animated field, no data needed
+exts."talon_defense.weather_overlay".grib_glob = "C:/data/gfs/*.pwat.*.grib2"         # glob of GRIB files, one or many messages each
+exts."talon_defense.weather_overlay".select = {}             # ecCodes key filter, e.g. { shortName = "2t", level = 2 }
+exts."talon_defense.weather_overlay".prim_path = "/World/GribSphere"
+exts."talon_defense.weather_overlay".radius = 66.0           # stage units; Earth = 6371 km * EARTH_DISPLAY_SCALE 1e-5 = 63.71
+exts."talon_defense.weather_overlay".stride = 0              # 0 = auto (keep under max_points)
+exts."talon_defense.weather_overlay".max_points = 400000
+exts."talon_defense.weather_overlay".hours_per_second = 4.0
+exts."talon_defense.weather_overlay".clock = "wall"          # "wall" or "timeline"
+exts."talon_defense.weather_overlay".cmap = "turbo"          # viridis, turbo, magma, coolwarm, blues, gray (+ "_r")
+exts."talon_defense.weather_overlay".vmin = ""               # number, or "" = auto from first frame
+exts."talon_defense.weather_overlay".vmax = ""
+exts."talon_defense.weather_overlay".log_scale = false
+exts."talon_defense.weather_overlay".opacity = 0.5          # constant opacity ...
+exts."talon_defense.weather_overlay".opacity_ramp = [20.0, 60.0, 0.0, 0.5]       # ... or [v0, v1, a0, a1] in data units
+exts."talon_defense.weather_overlay".unlit = true            # colors via emissive, independent of lighting
+exts."talon_defense.weather_overlay".emissive_scale = 2.0    # raise if the unlit shell reads dark under your exposure
+exts."talon_defense.weather_overlay".material = "mdl"              # "mdl" = bundled DataShell.mdl (real alpha in RTX); "preview" = UsdPreviewSurface
+exts."talon_defense.weather_overlay".emissive_intensity = 2000.0   # unlit brightness with material = "mdl" (light-intensity scale)
+exts."talon_defense.weather_overlay".double_sided = false
+exts."talon_defense.weather_overlay".backend = "auto"        # auto | usd | fabric
+exts."talon_defense.weather_overlay".fractional_cutout = true
+
+[documentation]
+pages = ["docs/README.md", "docs/CHANGELOG.md"]
