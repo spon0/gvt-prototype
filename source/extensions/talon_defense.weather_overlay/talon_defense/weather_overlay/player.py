@@ -13,6 +13,42 @@ from .usd_sphere import GribSphere, enable_fractional_cutout_opacity
 UPDATE_OBSERVER = f"{__package__}.player"
 
 
+def wrap_hours(hours: float, first: float, last: float, loop: bool) -> float:
+    """Clamp (or wrap, when looping) a play head to a sequence's time span."""
+    span = last - first
+    if span <= 0:
+        return first
+    if loop:
+        return first + (hours - first) % span
+    return min(max(hours, first), last)
+
+
+def frame_at(hours_axis: np.ndarray, hours: float, interpolate: bool = True) -> tuple[int, float]:
+    """-> (index of the frame at or before ``hours``, blend weight towards the next one)."""
+    n = len(hours_axis)
+    i = int(np.clip(np.searchsorted(hours_axis, hours, side="right") - 1, 0, n - 1))
+    if not interpolate or i >= n - 1:
+        return i, 0.0
+    step = float(hours_axis[i + 1] - hours_axis[i])
+    return i, (float(hours - hours_axis[i]) / step if step else 0.0)
+
+
+def blended_values(sequence: Any, i: int, w: float, lookahead: int = 3,
+                   loop: bool = True) -> np.ndarray | None:
+    """Decoded frame i blended towards i+1, or None while a needed frame is still decoding."""
+    n = len(sequence.hours)
+    sequence.prefetch([(i + k) % n if loop else i + k for k in range(1, lookahead + 1)])
+    a = sequence.get(i)
+    if a is None:
+        return None
+    if w <= 0.0:
+        return a
+    b = sequence.get(i + 1)
+    if b is None:
+        return None
+    return a + (b - a) * np.float32(w)
+
+
 def subscribe_update(callback: Callable[[float], None], name: str = UPDATE_OBSERVER) -> Any:
     """Call ``callback(dt_seconds)`` every app update. Keep the returned handle alive.
 
@@ -173,35 +209,18 @@ class GribPlayer:
 
     def _wrapped_hours(self) -> float:
         hs = self.sequence.hours
-        h0, span = float(hs[0]), float(hs[-1] - hs[0])
-        if span <= 0:
-            return h0
-        if self.loop:
-            return h0 + (self.hours - h0) % span
-        return min(max(self.hours, h0), h0 + span)
+        return wrap_hours(self.hours, float(hs[0]), float(hs[-1]), self.loop)
 
     def render(self, force: bool = False) -> bool:
         if not self.sphere.is_valid():
             raise RuntimeError(f"{self.sphere.path} was removed from the stage")
-        hs = self.sequence.hours
-        n = len(hs)
-        h = self._wrapped_hours()
-        i = int(np.clip(np.searchsorted(hs, h, side="right") - 1, 0, n - 1))
-        w = 0.0
-        if self.interpolate and i < n - 1:
-            w = float((h - hs[i]) / (hs[i + 1] - hs[i]))
+        i, w = frame_at(self.sequence.hours, self._wrapped_hours(), self.interpolate)
         key = (i, round(w, 3))
         if key == self._last_key and not force:
             return False
-
-        ahead = [(i + k) % n if self.loop else i + k for k in range(1, self.lookahead + 1)]
-        self.sequence.prefetch(ahead)
-        a = self.sequence.get(i)
-        b = self.sequence.get(i + 1) if w > 0.0 else None
-        if a is None or (w > 0.0 and b is None):
+        values = blended_values(self.sequence, i, w, self.lookahead, self.loop)
+        if values is None:
             return False  # still decoding: keep showing the previous frame, retry next update
-
-        values = a if w == 0.0 else a + (b - a) * np.float32(w)
         if self.style.vmin is None or self.style.vmax is None:
             self.style.autoscale(self.sequence.get(0) if self.sequence.get(0) is not None else values)
         t0 = time.perf_counter()

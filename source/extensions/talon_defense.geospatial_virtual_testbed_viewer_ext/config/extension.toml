@@ -26,6 +26,7 @@ repository = "https://github.com/NVIDIA-Omniverse/kit-app-template"  # URL of th
 "omni.usd" = {}
 "omni.kit.viewport.utility" = {}
 "omni.kit.pip_archive" = {} # for skyfield
+"talon_defense.weather_overlay" = {}
 
 [settings]
 

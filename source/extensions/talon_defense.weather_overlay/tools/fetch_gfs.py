@@ -29,6 +29,7 @@ PRESETS = {
     "t850": ("TMP", "850_mb", {"shortName": "t", "level": 850}),
     "rh700": ("RH", "700_mb", {"shortName": "r", "level": 700}),
     "prmsl": ("PRMSL", "mean_sea_level", {"shortName": "prmsl"}),
+    "tcdc": ("TCDC", "entire_atmosphere", {"shortName": "tcdc"})
 }
 
 

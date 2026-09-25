@@ -26,6 +26,7 @@ except ImportError:  # plain Python without USD: GRIB/mesh/style helpers only
     pxr = None
 
 if pxr is not None:
+    from .layers import WeatherLayer, WeatherLayers, close_all, weather_layers
     from .player import GribPlayer, subscribe_update
     from .session import Session, active, start, stop_all
     from .usd_sphere import GribSphere, enable_fractional_cutout_opacity
@@ -36,3 +37,10 @@ except ImportError:  # not running inside Kit
     pass
 else:
     from .extension import GribSphereExtension
+
+
+def open_panel(manager=None):
+    """Open the Weather Layers window (needs omni.ui, i.e. running inside Kit)."""
+    from .ui import open_panel as _open
+
+    return _open(manager)

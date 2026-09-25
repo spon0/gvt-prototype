@@ -36,6 +36,8 @@ from .camera_control import CameraControl
 from .earth import Earth
 from .sun import Sun
 
+from talon_defense.weather_overlay import WeatherLayers, OpacityRamp, open_panel
+
 # Any class derived from `omni.ext.IExt` in top level module (defined in
 # `python.modules` of `extension.toml`) will be instantiated when extension
 # gets enabled and `on_startup(ext_id)` will be called. Later when extension
@@ -136,6 +138,7 @@ class GvtManager(omni.ext.IExt):
                 self._earth.create_earth(stage)
                 self._sun.create_sun(stage)
                 self._create_starfield(stage)
+                self._demo_weather(stage)
 
                 self._camera.apply_selection_lock_and_pivot(get_active_viewport(), stage)
 
@@ -177,6 +180,14 @@ class GvtManager(omni.ext.IExt):
             "created starfield "
             f"backdrop at {STARFIELD_PATH} from {STARFIELD_TEXTURE_PATH}"
         )
+
+    def _demo_weather(self, stage):
+        w = WeatherLayers(base_radius=66.0, separation=0.1, hours_per_second=4, unlit=False)
+        w.add("pwat", "C:/data/gfs/9_24_2026/*.pwat.*.grib2", {"shortName": "pwat"},
+            cmap="turbo", opacity_ramp=[20, 60, 0.0, 0.15])
+        w.add("tcdc", "C:/data/gfs/9_24_2026/*.tcdc.*.grib2", {"shortName": "tcc"},
+            cmap="white", opacity_ramp=[0, 100, 0.0, 0.15])
+        w.start(); open_panel(w)
 
     def on_shutdown(self):
         """This is called every time the extension is deactivated. It is used to

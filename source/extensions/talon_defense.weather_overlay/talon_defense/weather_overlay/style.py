@@ -46,6 +46,7 @@ _CONTROL_POINTS: dict[str, list[tuple[float, float, float]]] = {
         (0.0314, 0.1882, 0.4196),
     ],
     "gray": [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
+    "white": [(1.0, 1.0, 1.0), (1.0, 1.0, 1.0)],
 }
 
 COLORMAPS = tuple(sorted(_CONTROL_POINTS))
